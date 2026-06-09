@@ -1,0 +1,5 @@
+[project]
+name = "tata-motors-safety-glasses"
+version = "0.1.0"
+description = "Custom AI-based safety glasses detection prototype"
+requires-python = ">=3.10"
