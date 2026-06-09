@@ -8,14 +8,14 @@ st.title("🦺 AI Safety Glasses Detector")
 
 st.write("Upload an image to check whether safety glasses are detected.")
 
-uploaded_file = st.file_uploader(
-    "Choose an image",
-    type=["jpg", "jpeg", "png"]
+image = st.camera_input("Take a picture")
+
+if image is not None:
+
+    file_bytes = np.asarray(
+    bytearray(image.read()),
+    dtype=np.uint8
 )
-
-if uploaded_file is not None:
-
-    file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
     image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
 
     detector = SafetyGlassesDetector()
