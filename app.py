@@ -14,8 +14,7 @@ if image is not None:
 
     file_bytes = np.asarray(
     bytearray(image.read()),
-    dtype=np.uint8
-)
+    dtype=np.uint8)
     image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
 
     detector = SafetyGlassesDetector()
