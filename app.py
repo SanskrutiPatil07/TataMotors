@@ -1,35 +1,46 @@
 import streamlit as st
+import requests
 import cv2
 import numpy as np
 
-from src.safety_glasses_detector import SafetyGlassesDetector
-
 st.title("🦺 AI Safety Glasses Detector")
 
-st.write("Upload an image to check whether safety glasses are detected.")
+st.write("Capture an image and check PPE compliance.")
+
+API_KEY = st.secrets["ROBOFLOW_API_KEY"]
+
+MODEL_ID = "safety-glasses-detection-qkhel/1"
 
 image = st.camera_input("Take a picture")
 
 if image is not None:
 
-    file_bytes = np.asarray(
-    bytearray(image.read()),
-    dtype=np.uint8)
-    image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+    image_bytes = image.getvalue()
 
-    detector = SafetyGlassesDetector()
-    result = detector.detect(image)
+    st.image(image_bytes, caption="Captured Image")
 
-    annotated = detector.annotate(image, result)
-
-    st.image(
-        cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB),
-        caption="Detection Result",
-        use_container_width=True
+    response = requests.post(
+        f"https://detect.roboflow.com/{MODEL_ID}",
+        params={
+            "api_key": API_KEY
+        },
+        files={
+            "file": image_bytes
+        }
     )
 
-    st.subheader("Result")
+    result = response.json()
 
-    st.write(f"**Label:** {result.label}")
-    st.write(f"**Confidence:** {result.confidence:.2f}")
-    st.write(f"**Faces Detected:** {result.face_count}")
+    st.subheader("Detection Result")
+
+    if "predictions" in result and len(result["predictions"]) > 0:
+
+        for prediction in result["predictions"]:
+
+            st.success(
+                f"Detected: {prediction['class']} "
+                f"(Confidence: {prediction['confidence']:.2f})"
+            )
+
+    else:
+        st.error("No safety glasses detected.")
