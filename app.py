@@ -31,29 +31,30 @@ if image is not None:
 
         st.subheader("Detection Result")
 
-        st.write(result)
 
         if "message" in result:
             st.warning(result["message"])
 
         else:
-            predictions = result.get("predictions", [])
+           predictions = result.get("predictions", [])
 
-            if len(predictions) > 0:
+if len(predictions) > 0:
 
-                detected_class = predictions[0]["class"]
+    safety_found = False
 
-                if detected_class == "Safety-Glasses-Detection":
-                    st.success("🟢 Safety Glasses Detected")
+    for pred in predictions:
+        if pred["class"] == "Safety-Glasses-Detection":
+            safety_found = True
+            confidence = pred["confidence"]
+            break
 
-                elif detected_class == "no-Safety-Glasses-Detection":
-                    st.error("🔴 No Safety Glasses Detected")
+    if safety_found:
+        st.success(
+            f"🟢 Safety Glasses Detected "
+            f"(Confidence: {confidence:.2%})"
+        )
+    else:
+        st.error("🔴 No Safety Glasses Detected")
 
-                else:
-                    st.info(f"Detected class: {detected_class}")
-
-            else:
-                st.warning("⚠️ No prediction returned")
-
-    except Exception as e:
-        st.error(f"Error: {e}")
+else:
+    st.warning("⚠️ No person detected")
