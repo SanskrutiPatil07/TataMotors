@@ -20,13 +20,17 @@ if image is not None:
         files={"file": image_bytes}
     )
 
-    result = response.json()
+   predictions = result.get("predictions", [])
 
-    st.subheader("Detection Result")
+if len(predictions) > 0:
 
-    st.write(result)
+    detected_class = predictions[0]["class"]
 
-    if len(result.get("predictions", [])) > 0:
+    if detected_class == "Safety-Glasses-Detection":
         st.success("🟢 Safety Glasses Detected")
-    else:
+
+    elif detected_class == "no-Safety-Glasses-Detection":
         st.error("🔴 No Safety Glasses Detected")
+
+else:
+    st.warning("⚠️ No person detected")
