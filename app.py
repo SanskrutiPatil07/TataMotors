@@ -25,6 +25,10 @@ if image is not None:
     st.subheader("Detection Result")
     st.write(result)
 
+    if "message" in result:
+    st.warning(result["message"])
+
+else:
     predictions = result.get("predictions", [])
 
     if len(predictions) > 0:
@@ -37,8 +41,5 @@ if image is not None:
         elif detected_class == "no-Safety-Glasses-Detection":
             st.error("🔴 No Safety Glasses Detected")
 
-        else:
-            st.warning(f"Detected: {detected_class}")
-
     else:
-        st.warning("⚠️ No person detected")
+        st.warning("⚠️ No prediction returned")
