@@ -1,6 +1,8 @@
 import streamlit as st
 import requests
 
+st.set_page_config(page_title="AI Safety Glasses Detector")
+
 st.title("🦺 AI Safety Glasses Detector")
 
 API_KEY = st.secrets["ROBOFLOW_API_KEY"]
@@ -14,32 +16,44 @@ if image is not None:
 
     st.image(image_bytes, caption="Captured Image")
 
-    response = requests.post(
-        f"https://detect.roboflow.com/{MODEL_ID}",
-        params={"api_key": API_KEY},
-        files={"file": image_bytes}
-    )
+    try:
+        response = requests.post(
+            f"https://detect.roboflow.com/{MODEL_ID}",
+            params={
+                "api_key": API_KEY
+            },
+            files={
+                "file": image_bytes
+            }
+        )
 
-    result = response.json()
+        result = response.json()
 
-    st.subheader("Detection Result")
-    st.write(result)
+        st.subheader("Detection Result")
 
-    if "message" in result:
-    st.warning(result["message"])
+        st.write(result)
 
-else:
-    predictions = result.get("predictions", [])
+        if "message" in result:
+            st.warning(result["message"])
 
-    if len(predictions) > 0:
+        else:
+            predictions = result.get("predictions", [])
 
-        detected_class = predictions[0]["class"]
+            if len(predictions) > 0:
 
-        if detected_class == "Safety-Glasses-Detection":
-            st.success("🟢 Safety Glasses Detected")
+                detected_class = predictions[0]["class"]
 
-        elif detected_class == "no-Safety-Glasses-Detection":
-            st.error("🔴 No Safety Glasses Detected")
+                if detected_class == "Safety-Glasses-Detection":
+                    st.success("🟢 Safety Glasses Detected")
 
-    else:
-        st.warning("⚠️ No prediction returned")
+                elif detected_class == "no-Safety-Glasses-Detection":
+                    st.error("🔴 No Safety Glasses Detected")
+
+                else:
+                    st.info(f"Detected class: {detected_class}")
+
+            else:
+                st.warning("⚠️ No prediction returned")
+
+    except Exception as e:
+        st.error(f"Error: {e}")
