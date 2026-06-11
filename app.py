@@ -51,15 +51,20 @@ if image is not None:
 
                 if safety_found:
 
-    st.success(
-        f"🟢 SAFETY GLASSES DETECTED "
-        f"(Confidence: {confidence:.2%})"
-    )
+                    st.success(
+                        f"🟢 SAFETY GLASSES DETECTED (Confidence: {confidence:.2%})"
+                    )
 
-    st.success("✅ MACHINE STATUS : ENABLED")
+                    st.success("✅ MACHINE STATUS : ENABLED")
 
-else:
+                else:
 
-    st.error("🔴 SAFETY GLASSES REQUIRED")
+                    st.error("🔴 SAFETY GLASSES REQUIRED")
 
-    st.error("❌ MACHINE STATUS : DISABLED")
+                    st.error("❌ MACHINE STATUS : DISABLED")
+
+            else:
+                st.warning("⚠️ No person detected")
+
+    except Exception as e:
+        st.error(f"Error: {e}")
