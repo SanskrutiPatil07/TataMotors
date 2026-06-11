@@ -1,35 +1,32 @@
 import streamlit as st
-from inference_sdk import InferenceHTTPClient
-from PIL import Image
-import tempfile
+import requests
 
 st.title("🦺 AI Safety Glasses Detector")
 
-CLIENT = InferenceHTTPClient(
-    api_url="https://detect.roboflow.com",
-    api_key=st.secrets["ROBOFLOW_API_KEY"]
-)
+API_KEY = st.secrets["ROBOFLOW_API_KEY"]
+MODEL_ID = "safety-glasses-detection-qkhel/1"
 
 image = st.camera_input("Take a picture")
 
 if image is not None:
 
-    img = Image.open(image)
+    image_bytes = image.getvalue()
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
-        img.save(tmp.name)
+    st.image(image_bytes, caption="Captured Image")
 
-        result = CLIENT.infer(
-            tmp.name,
-            model_id="safety-glasses-detection-qkhel/1"
-        )
+    response = requests.post(
+        f"https://detect.roboflow.com/{MODEL_ID}",
+        params={"api_key": API_KEY},
+        files={"file": image_bytes}
+    )
 
-    predictions = result.get("predictions", [])
+    result = response.json()
 
-    st.image(img, caption="Captured Image")
+    st.subheader("Detection Result")
 
-    if len(predictions) > 0:
+    st.write(result)
+
+    if len(result.get("predictions", [])) > 0:
         st.success("🟢 Safety Glasses Detected")
-        st.write(predictions)
     else:
         st.error("🔴 No Safety Glasses Detected")
